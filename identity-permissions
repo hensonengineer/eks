@@ -1,0 +1,25 @@
+###  In AWS EKS, the IAM role that is used to create the cluster (which can be specified in the CloudFormation template)
+### is automatically granted permissions that map it to the system:masters group in Kubernetes. This means the role has full 
+###  administrative privileges over the Kubernetes cluster. 
+
+### Any IAM user who assumes this role inherits these permissions and can therefore make direct calls to kubectl, 
+### effectively managing the Kubernetes cluster as an administrator. This setup allows for flexible access management, 
+### letting multiple users perform administrative tasks on the EKS cluster by assuming the same IAM role.
+
+
+# displays the details of the aws-auth ConfigMap in the kube-system namespace of an Amazon EKS cluster
+# showing how AWS IAM users and roles are mapped to Kubernetes RBAC groups
+
+# The identity of this entity isn't visible in your cluster configuration. So, it's important to note the entity that created the cluster and make sure that you never delete it
+aws sts get-caller-identity --query Arn
+
+# The roles listed in the aws-auth ConfigMap are mapped to Kubernetes RBAC groups, defining their permissions within the EKS cluster
+kubectl -n kube-system describe configmap aws-auth
+
+
+# show role that created the cluster
+eksctl get cluster #gets cluster name for next command
+aws eks describe-cluster --name [clustername] --query "cluster.{arn:arn, createdBy:creatorIdentity.userArn}" --output text
+
+
+
