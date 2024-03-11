@@ -1,0 +1,50 @@
+### EKS Tools ###
+
+## Install eksctl
+
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv -v /tmp/eksctl /usr/local/bin
+
+eksctl version
+
+# add bash completion
+sudo bash -c '/usr/local/bin/eksctl completion bash > /etc/bash_completion.d/eksctl'
+. /etc/profile.d/bash_completion.sh
+
+## install kubectl
+
+sudo curl --silent --location -o /usr/local/bin/kubectl \
+   https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.1/2023-09-14/bin/linux/amd64/kubectl
+
+sudo chmod +x /usr/local/bin/kubectl
+sudo chmod 755 /usr/local/bin/kubectl 
+
+#enable Bash completion
+
+sudo chmod +x /usr/local/bin/kubectl
+/usr/local/bin/kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
+
+## install Helm
+curl -fsSL -o /tmp/helm.tgz https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz
+tar -C /tmp -xzf /tmp/helm.tgz
+sudo mv /tmp/linux-amd64/helm /usr/local/bin/helm
+rm -rf /tmp/helm.tgz /tmp/linux-amd64
+
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+## install k9s
+curl -sS https://webinstall.dev/k9s | bash
+
+
+# install yq
+echo 'yq() {
+  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+}' | tee -a ~/.bashrc && source ~/.bashrc
+
+
+## create KMS key for kubernetes secrets
+aws kms create-alias --alias-name alias/[keyname] --target-key-id $(aws kms create-key --query KeyMetadata.Arn --output text)
+
+
+
